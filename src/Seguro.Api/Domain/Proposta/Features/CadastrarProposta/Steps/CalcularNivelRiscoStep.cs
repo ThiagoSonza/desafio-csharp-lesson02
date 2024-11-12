@@ -16,6 +16,7 @@ namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta.Steps
             int pontuacao = pontuacaoPorIdade + pontuacaoPorAcidentes + pontuacaoPorLocalidade;
 
             var nivelRisco = propostaRepository.BuscarClassificacaoPorPontuacao(pontuacao);
+            Data.AtualizaPontuacaoNivelRisco(pontuacao);
             Data.AtualizaNivelRisco(nivelRisco);
 
             await Task.CompletedTask;

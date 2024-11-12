@@ -24,6 +24,8 @@ namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta
                     .Input(step => step.Data, data => data.Data)
                 .Then<CalcularValorSeguroStep>()
                     .Input(step => step.Data, data => data.Data)
+                .Then<CriarPropostaStep>()
+                    .Input(step => step.Data, data => data.Data)
                 .EndWorkflow();
         }
     }

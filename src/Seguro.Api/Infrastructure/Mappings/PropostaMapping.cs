@@ -14,7 +14,6 @@ namespace Seguro.Api.Infrastructure.Mappings
             builder.Property(p => p.Data);
             builder.Property(p => p.Status);
             builder.Property(p => p.HistoricoAcidentes);
-            builder.Property(p => p.ValorVeiculo);
             builder.Property(p => p.NivelRisco);
             builder.Property(p => p.PontuacaoNivelRisco);
             builder.Property(p => p.ValorTotalApolice);
@@ -24,6 +23,7 @@ namespace Seguro.Api.Infrastructure.Mappings
                 veiculo.Property(p => p.Marca).HasColumnName("VeiculoMarca");
                 veiculo.Property(p => p.Modelo).HasColumnName("VeiculoModelo");
                 veiculo.Property(p => p.Ano).HasColumnName("VeiculoAno");
+                veiculo.Property(p => p.Valor).HasColumnName("VeiculoValor");
             });
 
             builder.OwnsOne(p => p.Condutor, condutor =>

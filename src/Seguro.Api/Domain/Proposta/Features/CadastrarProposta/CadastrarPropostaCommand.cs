@@ -1,11 +1,10 @@
 using System.Text;
 using CSharpFunctionalExtensions;
 using MediatR;
-using Seguro.Api.Domain.Proposta.Model;
 
 namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta
 {
-    public record CadastrarPropostaCommand : IRequest<Result<PropostaDominio>>
+    public record CadastrarPropostaCommand : IRequest<Result<string>>
     {
         private CadastrarPropostaCommand(Veiculo veiculo, Proprietario proprietario, Condutor condutor, IEnumerable<int> Coberturas)
         {
@@ -43,6 +42,7 @@ namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta
         public CondutorCommand Condutor { get; }
         public IEnumerable<int> Coberturas { get; }
         public int HistoricoAcidentes { get; private set; }
+        public int PontuacaoNivelRisco { get; private set; }
         public int NivelRisco { get; private set; }
 
         public static Result<CadastrarPropostaCommand> Criar(Veiculo veiculo, Proprietario proprietario, Condutor condutor, IEnumerable<int> coberturas)
@@ -69,6 +69,9 @@ namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta
 
         public void AtualizaNivelRisco(int nivelRisco)
             => NivelRisco = nivelRisco;
+
+        public void AtualizaPontuacaoNivelRisco(int pontuacao)
+            => PontuacaoNivelRisco = pontuacao;
     }
 
 
