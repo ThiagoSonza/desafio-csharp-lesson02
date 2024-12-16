@@ -6,6 +6,10 @@ namespace Seguro.Api.Domain.Proposta.Model
 {
     public class PropostaDominio : Entity<int>
     {
+        private PropostaDominio()
+        {
+        }
+
         private PropostaDominio(int id, string veiculoMarca, string veiculoModelo, string veiculoAno, decimal veiculoValor,
                                 string condutorCpf, DateTime condutorDtNascimento,
                                 string condutorEstado, string condutorLocalidade, string condutorBairro, string condutorLogradouro, string? condutorNumero, string? condutorComplemento,
@@ -15,7 +19,7 @@ namespace Seguro.Api.Domain.Proposta.Model
                                 ) : base(id)
         {
             Data = DateTime.Now;
-            Veiculo = new(veiculoMarca, veiculoModelo, veiculoAno, veiculoValor);
+            Veiculo = new VeiculoDominio(veiculoMarca, veiculoModelo, veiculoAno, veiculoValor);
 
             Condutor = new(
                 condutorCpf,
@@ -82,8 +86,63 @@ namespace Seguro.Api.Domain.Proposta.Model
             => Status = (int)EStatusProposta.Rejeitada;
     }
 
-    public record VeiculoDominio(string Marca, string Modelo, string Ano, decimal Valor);
-    public record ProprietarioDominio(string Cpf, string Nome, DateTime DataNascimento, ResidenciaDominio Residencia);
-    public record CondutorDominio(string Cpf, DateTime DataNascimento, ResidenciaDominio Residencia);
+    public record VeiculoDominio
+    {
+        public string Marca { get; set; }
+        public string Modelo { get; set; }
+        public string Ano { get; set; }
+        public decimal Valor { get; set; }
+
+        private VeiculoDominio()
+        {
+        }
+
+        public VeiculoDominio(string marca, string modelo, string ano, decimal valor)
+        {
+            Marca = marca;
+            Modelo = modelo;
+            Ano = ano;
+            Valor = valor;
+        }
+    }
+
+    public record ProprietarioDominio
+    {
+        public string Cpf { get; set; }
+        public string Nome { get; set; }
+        public DateTime DataNascimento { get; set; }
+        public ResidenciaDominio Residencia { get; set; }
+
+        public ProprietarioDominio()
+        {
+        }
+
+        public ProprietarioDominio(string Cpf, string Nome, DateTime DataNascimento, ResidenciaDominio Residencia)
+        {
+            this.Cpf = Cpf;
+            this.Nome = Nome;
+            this.DataNascimento = DataNascimento;
+            this.Residencia = Residencia;
+        }
+    }
+
+    public record CondutorDominio
+    {
+        public string Cpf { get; set; }
+        public DateTime DataNascimento { get; set; }
+        public ResidenciaDominio Residencia { get; set; }
+
+        public CondutorDominio()
+        {
+        }
+
+        public CondutorDominio(string Cpf, DateTime DataNascimento, ResidenciaDominio Residencia)
+        {
+            this.Cpf = Cpf;
+            this.DataNascimento = DataNascimento;
+            this.Residencia = Residencia;
+        }
+    }
+
     public record ResidenciaDominio(string Estado, string Localidade, string Bairro, string Logradouro, string? Numero, string? Complemento);
 }

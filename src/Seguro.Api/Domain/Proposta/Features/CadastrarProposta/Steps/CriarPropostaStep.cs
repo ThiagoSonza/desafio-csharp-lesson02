@@ -15,7 +15,11 @@ namespace Seguro.Api.Domain.Proposta.Features.CadastrarProposta.Steps
                 Data.Veiculo,
                 Data.Proprietario,
                 Data.Condutor,
-                Data.Coberturas
+                Data.Coberturas,
+                Data.HistoricoAcidentes,
+                Data.NivelRisco,
+                Data.PontuacaoNivelRisco,
+                0
             );
 
             if (propostaResult.IsFailure)

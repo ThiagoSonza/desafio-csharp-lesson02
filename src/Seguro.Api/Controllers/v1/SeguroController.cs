@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Seguro.Api.Controllers.Shared;
@@ -5,10 +6,18 @@ using Seguro.Api.Domain.Proposta.Features.AprovarProposta;
 using Seguro.Api.Domain.Proposta.Features.CadastrarProposta;
 using Seguro.Api.Domain.Proposta.Features.RejeitarProposta;
 
-namespace Seguro.Api.Controllers
+namespace Seguro.Api.Controllers.v1
 {
+    [ApiVersion("1")]
     public class SeguroController(IMediator mediator) : BaseController
     {
+        /// <summary>
+        /// Gera uma proposta
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <returns></returns>
+        /// <response code="200">Retorna OK</response>
         [HttpGet]
         public async Task<IActionResult> CadastrarProposta([FromBody] CadastrarPropostaRequest request, CancellationToken cancelationToken)
         {
@@ -23,6 +32,13 @@ namespace Seguro.Api.Controllers
                 : BadRequest(result.Error);
         }
 
+        /// <summary>
+        /// Aprova a proposta
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <returns></returns>
+        /// <response code="200">Retorna OK</response>
         [HttpPut("{proposta}/aprovar")]
         public async Task<IActionResult> AprovarPropostaSeguro(int proposta, CancellationToken cancelationToken)
         {
@@ -37,6 +53,13 @@ namespace Seguro.Api.Controllers
                 : BadRequest(result.Error);
         }
 
+        /// <summary>
+        /// Rejeita a proposta
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <returns></returns>
+        /// <response code="200">Retorna OK</response>
         [HttpPut("{proposta}/rejeitar")]
         public async Task<IActionResult> RejeitarPropostaSeguro(int proposta, CancellationToken cancelationToken)
         {
