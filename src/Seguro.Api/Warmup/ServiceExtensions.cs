@@ -11,6 +11,11 @@ using Seguro.Api.Infrastructure;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Resources;
+using Serilog;
+using Serilog.Enrichers.OpenTelemetry;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace Seguro.Api.Warmup
 {
@@ -147,6 +152,78 @@ namespace Seguro.Api.Warmup
             })
             .AddProblemDetailsConventions();
 
+            return services;
+        }
+
+        public static IServiceCollection AddTelemetry(this IServiceCollection serviceCollection, string serviceName, string serviceVersion, IConfiguration configuration)
+        {
+            var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            TelemetrySettings settings;
+            if (configuration.GetSection("OpenTelemetry") is var section && section.Exists())
+                settings = new TelemetrySettings(serviceName, serviceVersion, new TelemetryExporter(section["Type"] ?? string.Empty, section["Endpoint"] ?? string.Empty));
+            else
+                settings = new TelemetrySettings(serviceName, serviceVersion, new TelemetryExporter("console", ""));
+
+            PropostasOtelMetrics metrics = new();
+
+            serviceCollection.AddSingleton(settings);
+            serviceCollection.AddScoped(sp => new OtelTracingService(sp.GetService<TelemetrySettings>()));
+            serviceCollection.AddScoped<TelemetryFactory>();
+            serviceCollection.AddSingleton(metrics);
+            serviceCollection.AddSingleton<OtelVariables>();
+
+            Action<ResourceBuilder> configureResource = r => r.AddService(
+                serviceName: "Seguro.Api",
+                serviceVersion: "v1",
+                serviceInstanceId: Environment.MachineName);
+
+            serviceCollection.AddOpenTelemetry()
+                .ConfigureResource(configureResource)
+                .WithTracing(builder => builder
+                    .AddSource("Seguro.Api")
+                    .AddHttpClientInstrumentation()
+                    .AddSqlClientInstrumentation(o =>
+                    {
+                        o.RecordException = true;
+                        o.SetDbStatementForText = true;
+                    })
+                    .AddEntityFrameworkCoreInstrumentation(o => { })
+                    .AddAspNetCoreInstrumentation(opts =>
+                    {
+                        opts.EnrichWithHttpRequest = (a, r) => a?.AddTag("env", environmentName);
+                        opts.RecordException = true;
+                    })
+                    .AddOtlpExporter(config =>
+                    {
+                        config.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+                        config.Endpoint = new Uri("http://localhost:4317");
+                        config.Headers = "x-honeycomb-team=Je9GeCFwekC0l2mdfhHe6uA";
+                    })
+                );
+
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddLogs(this IServiceCollection services, IConfiguration configuration, string serviceName)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithThreadId()
+                .Enrich.WithOpenTelemetrySpanId()
+                .Enrich.WithOpenTelemetryTraceId()
+                .Enrich.WithProperty("service_name", serviceName)
+                .WriteTo.OpenTelemetry(options =>
+                {
+                    options.Endpoint = "http://localhost:4317";
+                    options.IncludedData = IncludedData.MessageTemplateTextAttribute
+                        | IncludedData.TraceIdField | IncludedData.SpanIdField;
+                    options.Protocol = OtlpProtocol.Grpc;
+                })
+                .WriteTo.Console()
+                .CreateLogger();
+
+            services.AddSingleton(Log.Logger);
             return services;
         }
 

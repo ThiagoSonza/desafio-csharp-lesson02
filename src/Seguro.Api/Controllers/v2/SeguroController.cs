@@ -18,7 +18,7 @@ namespace Seguro.Api.Controllers.v2
         /// </remarks>
         /// <returns></returns>
         /// <response code="200">Retorna OK</response>
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> CadastrarPropostaV2([FromBody] CadastrarPropostaRequest request, CancellationToken cancelationToken)
         {
             var command = request.CriarComando();
